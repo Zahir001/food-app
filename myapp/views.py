@@ -8,21 +8,30 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.core.paginator import Paginator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_headers
 
 # Create your views here.
 # @login_required
-# def index(request):
-#   item_list = Item.objects.all()
-#   # return HttpResponse(item_list)
-#   context = {
-#     'item_list':item_list
-#   }
-#   return render(request,"myapp/index.html",context)
+# @cache_page(60 * 15)
+# @vary_on_headers("Agent-User") #Agent-User is case sensitive
+def index(request):
+  item_list = Item.objects.all()
+  paginator = Paginator(item_list,5)
+  page_number = request.GET.get('page') #request.GET se page no nika rha hia
+  page_obj = paginator.get_page(page_number)
+  # return HttpResponse(item_list)
+  context = {
+    'page_obj':page_obj
+  }
+  print('paaggee__objj',list(page_obj)) 
+  return render(request,"myapp/index.html",context)
 
-class IndexClassView(LoginRequiredMixin,ListView):
-  model = Item
-  template_name = 'myapp/index.html'
-  context_object_name = 'item_list'
+# class IndexClassView(LoginRequiredMixin,ListView):
+#   model = Item
+#   template_name = 'myapp/index.html'
+#   context_object_name = 'item_list'
 
 
 # def detail(request, id):
