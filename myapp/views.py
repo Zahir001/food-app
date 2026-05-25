@@ -120,7 +120,9 @@ def create_item(request):
 
 class ItemUpdateView(UpdateView):
   model = Item
-  fields = ['item_name','item_desc','item_price','item_image']
+  # fields = ['item_name','item_desc','item_price','item_image']
+  form_class = ItemForm # upar wala v use ho sakta hai ye wala ItemForm se 
+  #validation lena ttha isiliye likha "FORM_CLASS" ye inbuilt keyword hai django ka
   template_name_suffix = '_update_form'
 
   def get_queryset(self):

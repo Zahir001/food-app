@@ -11,9 +11,11 @@
     </div>
     <!---->
     {% if field.errors %}
-    <div class="bg-red-500 text-white p-2">
+    <div class="bg-gray-200 text-red-500 p-2">
       {% for error in field.errors %}
-      <p>{{error}}</p>
+      <ol class="list-disc pl-5">
+        <li>{{error}}</li>
+      </ol>
       <!---->
       {% endfor %}
     </div>
