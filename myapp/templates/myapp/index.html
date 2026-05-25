@@ -1,18 +1,21 @@
 {% extends 'myapp/base.html' %}
+{% load custom_filters %}
 {% block body %}
-{% load cache %}
+<!-- {% load cache %} -->
 <div>
-  {% cache 20 page_obj %} <!--fragment caching-->
+  <!-- {% cache 0 items_any_word_here_fine page_obj.number %} fragment caching -->
   {% for item in page_obj %}
   <div class="m-10 flex w-1/2 mx-auto">
     <div>
       <img class="w-64 rounded-lg" src="{{item.item_image}}" alt="">
     </div>
     <div class="mx-16">
-      <div class="font-bold">{{ item.item_name }}</div>
-      <div>{{ item.item_desc }}</div>
-      <div class="text-green-700 font-bold">₹ {{ item.item_price }}</div>
+      <div class="font-bold">{{ item.item_name|upper }}</div>
+      <div>{{ item.item_desc|lower|truncatechars:30 }}</div>
       <div>posted by:{{item.user_name}}</div>
+      <div>{{item.created_at|timesince}} ago</div>
+      <div class="text-green-1000 font-bold">Actual Price: {{ item.item_price|floatformat:2|currency }}</div>
+      <div class="text-green-700 font-bold">Dicounted Price: {{item.item_price|discount:10|floatformat:2|currency}} ✅</div>
     </div>
     <div>
       <a class="bg-red-500 text-white font-bold px-4 py-2 rounded-md" href="{% url 'myapp:detail' item.id %}">View
@@ -20,7 +23,7 @@
     </div>
   </div>
   {% endfor %}
-  {% endcache %}
+  <!-- {% endcache %} -->
 </div>
 <div class="flex items-center justify-center space-x-4 py-4">
   {% if page_obj.has_previous %}

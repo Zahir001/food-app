@@ -30,6 +30,7 @@ def index(request):
   paginator = Paginator(item_list,5)
   page_number = request.GET.get('page') #request.GET se page no nika rha hia
   page_obj = paginator.get_page(page_number)
+  print('pagggee-obj',page_obj)
   # return HttpResponse(item_list)
   context = {
     'page_obj':page_obj
