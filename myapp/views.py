@@ -66,31 +66,31 @@ def detail(request, id):
   
 
 
-# def create_item(request):
-#   form = ItemForm(request.POST or None)
-#   if request.method=="POST":
-#     # form = ItemForm(request.POST)  # print(request.POST) # form se submitted data nikalne ke liye request.post
-#     if form.is_valid():
-#         form.save()
-#         return redirect('myapp:index')
+def create_item(request):
+  form = ItemForm(request.POST or None)
+  if request.method=="POST":
+    # form = ItemForm(request.POST)  # print(request.POST) # form se submitted data nikalne ke liye request.post
+    if form.is_valid():
+        form.save()
+        return redirect('myapp:index')
 
 
-#   context ={
-#     'form':form
-#   }
-#   return render(request,'myapp/item-form.html',context)
+  context ={
+    'form':form
+  }
+  return render(request,'myapp/item-form.html',context)
 
-class ItemCreateView(CreateView):
-  model = Item
-  fields = ['item_name','item_desc','item_price','item_image']
-  def form_valid(self, form):
-    # form object createview khud bna leta hai internally
-    form.instance.user_name = self.request.user #request.user = gives current loggedin user and form.instanace = full object of Item model Class
-    # user_name is a ForeignKey field.
-    # It does not store plain string/text.
-    # It stores reference(id) of a User object from another table.
+# class ItemCreateView(CreateView):
+#   model = Item
+#   fields = ['item_name','item_desc','item_price','item_image']
+#   def form_valid(self, form):
+#     # form object createview khud bna leta hai internally
+#     form.instance.user_name = self.request.user #request.user = gives current loggedin user and form.instanace = full object of Item model Class
+#     # user_name is a ForeignKey field.
+#     # It does not store plain string/text.
+#     # It stores reference(id) of a User object from another table.
     
-    return super().form_valid(form)
+#     return super().form_valid(form)
   
 # SHORT NOTE
 # form = Form(request.POST)
