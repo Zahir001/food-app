@@ -19,6 +19,8 @@ from .serializers import ItemSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
+from rest_framework import generics
+
 
 # Create your views here.
 # @login_required
@@ -27,46 +29,59 @@ from rest_framework.views import APIView
 
 logger = logging.getLogger(__name__)
 
-class ItemListAPIView(APIView):
-  def get(self,request):
-    items = Item.objects.all()
-    serializer = ItemSerializer(items,many=True)
-    return Response(serializer.data)
-  def post(self,request):
-    serializer = ItemSerializer(data=request.data)
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data)
-    
-class ItemDetailAPIView(APIView):
-  def get_object(self,pk):
-    try:
-        return Item.objects.get(pk=pk)
-    except Item.DoesNotExist:
-      return None
-  def get(self,request,pk):
-    item = self.get_object(pk)
-    if not item:
-        return Response({"Error":"Item not found"})
-    serializer = ItemSerializer(item)
-    return Response(serializer.data)
-  
-  def put(self,request,pk):
-    item = self.get_object(pk)
-    if not item:
-      return Response({"Error":"Item not found"})
-    serializer = ItemSerializer(item,request.data)
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data)
-  
-  def delete(self,request,pk):
-    item = self.get_object(pk)
-    if not item:
-      return Response({"Error":"Item not found"})
-    item.delete()
-    return Response({"message":"Item deleted"})
+# YE HAI GENERIC VIEW SE BNA HAI WITH LESS CODE
 
+class ItemListCreateAPI(generics.ListCreateAPIView):
+   queryset = Item.objects.all()
+   serializer_class = ItemSerializer
+
+class ItemRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+   queryset = Item.objects.all()
+   serializer_class = ItemSerializer
+
+# YE HAI CBV APIVIEW SE BNA HAI WITH DRF 
+
+# class ItemListAPIView(APIView):
+#   def get(self,request):
+#     items = Item.objects.all()
+#     serializer = ItemSerializer(items,many=True)
+#     return Response(serializer.data)
+#   def post(self,request):
+#     serializer = ItemSerializer(data=request.data)
+#     if serializer.is_valid():
+#       serializer.save()
+#       return Response(serializer.data)
+    
+# class ItemDetailAPIView(APIView):
+#   def get_object(self,pk):
+#     try:
+#         return Item.objects.get(pk=pk)
+#     except Item.DoesNotExist:
+#       return None
+#   def get(self,request,pk):
+#     item = self.get_object(pk)
+#     if not item:
+#         return Response({"Error":"Item not found"})
+#     serializer = ItemSerializer(item)
+#     return Response(serializer.data)
+  
+#   def put(self,request,pk):
+#     item = self.get_object(pk)
+#     if not item:
+#       return Response({"Error":"Item not found"})
+#     serializer = ItemSerializer(item,request.data)
+#     if serializer.is_valid():
+#       serializer.save()
+#       return Response(serializer.data)
+  
+#   def delete(self,request,pk):
+#     item = self.get_object(pk)
+#     if not item:
+#       return Response({"Error":"Item not found"})
+#     item.delete()
+#     return Response({"message":"Item deleted"})
+
+# YE FBV HAI WITH DRF 
 
 # @api_view(["GET","POST"])
 # def item_list_api(request):
