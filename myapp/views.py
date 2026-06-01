@@ -20,6 +20,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework import generics
+from rest_framework import viewsets
 
 
 # Create your views here.
@@ -29,15 +30,22 @@ from rest_framework import generics
 
 logger = logging.getLogger(__name__)
 
+
+#AUR YE HAI SABSE POWERFUL WAY VIEWSET EK HI CLASS SE SAB KUCH HANDLE
+class ItemViewSet(viewsets.ModelViewSet):
+   queryset = Item.objects.all()
+   serializer_class = ItemSerializer
+   
+
 # YE HAI GENERIC VIEW SE BNA HAI WITH LESS CODE
 
-class ItemListCreateAPI(generics.ListCreateAPIView):
-   queryset = Item.objects.all()
-   serializer_class = ItemSerializer
+# class ItemListCreateAPI(generics.ListCreateAPIView):
+#    queryset = Item.objects.all()
+#    serializer_class = ItemSerializer
 
-class ItemRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-   queryset = Item.objects.all()
-   serializer_class = ItemSerializer
+# class ItemRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+#    queryset = Item.objects.all()
+#    serializer_class = ItemSerializer
 
 # YE HAI CBV APIVIEW SE BNA HAI WITH DRF 
 
