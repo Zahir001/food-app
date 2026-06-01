@@ -14,6 +14,11 @@ from django.views.decorators.vary import vary_on_headers
 import logging
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.http import JsonResponse
+from .serializers import ItemSerializer
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 
 # Create your views here.
 # @login_required
@@ -21,6 +26,84 @@ from django.utils import timezone
 # @vary_on_headers("Agent-User") #Agent-User is case sensitive
 
 logger = logging.getLogger(__name__)
+
+class ItemListAPIView(APIView):
+  def get(self,request):
+    items = Item.objects.all()
+    serializer = ItemSerializer(items,many=True)
+    return Response(serializer.data)
+  def post(self,request):
+    serializer = ItemSerializer(data=request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data)
+    
+class ItemDetailAPIView(APIView):
+  def get_object(self,pk):
+    try:
+        return Item.objects.get(pk=pk)
+    except Item.DoesNotExist:
+      return None
+  def get(self,request,pk):
+    item = self.get_object(pk)
+    if not item:
+        return Response({"Error":"Item not found"})
+    serializer = ItemSerializer(item)
+    return Response(serializer.data)
+  
+  def put(self,request,pk):
+    item = self.get_object(pk)
+    if not item:
+      return Response({"Error":"Item not found"})
+    serializer = ItemSerializer(item,request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data)
+  
+  def delete(self,request,pk):
+    item = self.get_object(pk)
+    if not item:
+      return Response({"Error":"Item not found"})
+    item.delete()
+    return Response({"message":"Item deleted"})
+
+
+# @api_view(["GET","POST"])
+# def item_list_api(request):
+#    if request.method=="GET":
+#     items = Item.objects.all()
+#     serializer = ItemSerializer(items,many=True)
+#     return Response(serializer.data)
+#    elif request.method=="POST":
+#       serializer = ItemSerializer(data=request.data)  # request.data data nikalne ke liye
+#       if serializer.is_valid():
+#         serializer.save()
+#         return Response(serializer.data)
+
+# @api_view(["GET","PUT","DELETE"])
+# def item_detail_api(request,pk):
+#   #  item = Item.objects.get(pk=pk) ye error throw karega ugly ui 
+#    item = get_object_or_404(Item, pk=pk) # ye proper ui dikhega nhi milne pe item
+#    if request.method=='GET':
+#     serializer = ItemSerializer(item)
+#     return Response(serializer.data)
+#    elif request.method=='PUT':
+#      serializer = ItemSerializer(item,data=request.data)
+#      if serializer.is_valid():
+#        serializer.save()
+#        return Response(serializer.data)
+#    elif request.method=='DELETE':
+#       item.delete()
+#       return Response({"message":"Item deleted"})
+
+
+#NORMAL PYTHON API
+# def item_list_json(request):
+#    items = Item.objects.all().values("id","item_name","item_desc","item_price")
+#    return JsonResponse(list(items),safe=False) 
+# #NORMAL PYTHON API WITHOUT USING DRF
+
+  
 
 def index(request):
   logger.info("Fetching all items from the database")
