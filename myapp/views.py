@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
-from .models import Item
+from .models import Item,Order
 from .forms import ItemForm
 from django.contrib.auth.decorators import login_required
 from django.views.generic.list import ListView
@@ -15,12 +15,18 @@ import logging
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.http import JsonResponse
-from .serializers import ItemSerializer
+from .serializers import ItemSerializer,OrderSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from .permissions import IsOwnerOrReadOnly
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter,SearchFilter
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
 
 # Create your views here.
@@ -30,12 +36,25 @@ from rest_framework import viewsets
 
 logger = logging.getLogger(__name__)
 
+class OrderViewSet(viewsets.ModelViewSet):
+   queryset = Order.objects.all()
+   serializer_class = OrderSerializer
 
 #AUR YE HAI SABSE POWERFUL WAY VIEWSET EK HI CLASS SE SAB KUCH HANDLE
 class ItemViewSet(viewsets.ModelViewSet):
    queryset = Item.objects.all()
    serializer_class = ItemSerializer
-   
+   permission_classes = [IsOwnerOrReadOnly]
+   filter_backends = [DjangoFilterBackend,OrderingFilter,SearchFilter]
+   filterset_fields = ["item_name","item_price"]
+   ordering_fields = ["item_name","item_price"]
+   search_fields = ["item_name","item_desc"]
+   throttle_classes = [AnonRateThrottle,UserRateThrottle]
+
+   def perform_create(self, serializer):
+      serializer.save(user_name=self.request.user)
+
+  #  authentication_classes = [TokenAuthentication]
 
 # YE HAI GENERIC VIEW SE BNA HAI WITH LESS CODE
 
@@ -59,7 +78,7 @@ class ItemViewSet(viewsets.ModelViewSet):
 #     if serializer.is_valid():
 #       serializer.save()
 #       return Response(serializer.data)
-    
+
 # class ItemDetailAPIView(APIView):
 #   def get_object(self,pk):
 #     try:
@@ -72,7 +91,7 @@ class ItemViewSet(viewsets.ModelViewSet):
 #         return Response({"Error":"Item not found"})
 #     serializer = ItemSerializer(item)
 #     return Response(serializer.data)
-  
+
 #   def put(self,request,pk):
 #     item = self.get_object(pk)
 #     if not item:
@@ -81,7 +100,7 @@ class ItemViewSet(viewsets.ModelViewSet):
 #     if serializer.is_valid():
 #       serializer.save()
 #       return Response(serializer.data)
-  
+
 #   def delete(self,request,pk):
 #     item = self.get_object(pk)
 #     if not item:
@@ -134,7 +153,7 @@ def index(request):
   item_list = Item.objects.all()
   logger.debug(f"found {item_list.count()} items")
   paginator = Paginator(item_list,5)
-  page_number = request.GET.get('page') #request.GET se page no nika rha hia
+  page_number = request.GET.get('page') #request.GET se page no nikal rha hai
   page_obj = paginator.get_page(page_number)
   print('pagggee-obj',page_obj)
   # return HttpResponse(item_list)

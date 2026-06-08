@@ -22,11 +22,12 @@ class Item(models.Model):
     self.save()
 
 
-  user_name = models.ForeignKey(User,on_delete=models.CASCADE,default=1)
+  user_name = models.ForeignKey(User,on_delete=models.CASCADE,default=1) #yani har Item object ek specific user se linked hoga
   item_name = models.CharField(max_length=200,db_index=True)
   item_desc = models.CharField()
   item_price = models.DecimalField(max_digits=6,decimal_places=2,db_index=True)
-  item_image = models.URLField(max_length=500,default='https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg')
+  # item_image = models.URLField(max_length=500,default='https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg')
+  item_image = models.ImageField(upload_to='item_images/',blank=True,null=True)
   is_available = models.BooleanField(default=True)
   created_at = models.DateTimeField(auto_now_add=True)
 
@@ -46,6 +47,14 @@ class Category(models.Model):
   def __str__(self):
     return self.name
 
+
+class Order(models.Model):
+  user = models.ForeignKey(User,on_delete=models.CASCADE)
+  created_at = models.DateTimeField(auto_now_add=True) #auto_now_add__ye ek hi baar #time genereate kr ke deta hai aur auto_now jo hai har update me time generate kr deta hai 
+  items = models.ManyToManyField(Item,related_name='orders')
+
+  def __str__(self):
+    return f"Order {self.id} by {self.user.username}"
 
 
 # NOTE 
